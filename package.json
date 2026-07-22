@@ -1,0 +1,19 @@
+{
+  "name": "myshop-backend",
+  "version": "1.0.0",
+  "description": "MyShop backend: products, orders, and ABA PayWay (KHQR) integration",
+  "main": "server.js",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1"
+  }
+}

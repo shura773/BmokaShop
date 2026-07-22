@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyShop Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+    --forest:#FFFFFF;
+    --paper:#FFF7FA;
+    --paper-dark:#FFD9EA;
+    --khaki:#A2809B;
+    --rust:#FF4FA0;
+    --rust-dark:#E23888;
+    --ink:#4A2E3D;
+    --ink-soft:#A2809B;
+    --green-ok:#1F9254;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--paper);color:var(--ink);font-family:'Quicksand',sans-serif;}
+h1,h2{font-family:'Fredoka',sans-serif;font-weight:600;}
+.mono{font-family:'Quicksand',sans-serif;font-weight:600;}
+
+header{
+    background:var(--forest);
+    color:var(--ink);
+    padding:20px 5%;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-bottom:2px dashed var(--rust);
+}
+header h1{font-size:22px;color:var(--ink);}
+header h1::before{content:"🎀 ";}
+header .sub{font-family:'Quicksand',sans-serif;font-weight:700;font-size:11px;color:var(--ink-soft);letter-spacing:.3px;}
+#logoutBtn{
+    background:none;border:2px solid var(--paper-dark);color:var(--ink);
+    padding:8px 16px;cursor:pointer;font-family:'Quicksand',sans-serif;font-weight:700;font-size:12px;
+    border-radius:999px;
+}
+#logoutBtn:hover{border-color:var(--rust);color:var(--rust-dark);}
+
+/* ---- login screen ---- */
+#loginScreen{
+    max-width:380px;
+    margin:90px auto;
+    padding:34px;
+    background:var(--forest);
+    border:2px solid var(--paper-dark);
+    border-radius:26px;
+}
+#loginScreen h2{margin-bottom:6px;font-size:22px;}
+#loginScreen h2::before{content:"🔐 ";}
+#loginScreen p.sub{color:var(--ink-soft);font-size:13px;margin-bottom:24px;}
+.field{margin-bottom:16px;}
+.field label{
+    display:block;font-family:'Quicksand',sans-serif;font-weight:700;font-size:11px;
+    letter-spacing:.3px;color:var(--ink-soft);margin-bottom:6px;
+}
+.field input{
+    width:100%;padding:12px 14px;border:2px solid var(--paper-dark);border-radius:14px;
+    background:var(--paper);font-family:'Quicksand',sans-serif;font-size:14px;
+}
+.field input:focus{outline:none;border-color:var(--rust);}
+.btn{
+    display:inline-block;background:var(--rust);color:#fff;
+    padding:13px 26px;border:none;cursor:pointer;font-family:'Quicksand',sans-serif;font-weight:700;
+    font-size:12px;border-radius:999px;
+    box-shadow:0 5px 0 var(--rust-dark);
+}
+.btn:hover{transform:translateY(2px);box-shadow:0 3px 0 var(--rust-dark);}
+.btn.outline{background:transparent;border:2px solid var(--rust);color:var(--rust-dark);box-shadow:none;}
+.btn.outline:hover{background:var(--paper-dark);transform:none;}
+.error-msg{color:var(--rust-dark);font-size:13px;margin-top:10px;display:none;}
+.error-msg.show{display:block;}
+
+/* ---- dashboard ---- */
+#dashboard{display:none;padding:40px 5%;max-width:1200px;margin:0 auto;}
+.section{margin-bottom:60px;}
+.section-head{
+    display:flex;justify-content:space-between;align-items:center;
+    border-bottom:2px dashed var(--paper-dark);padding-bottom:14px;margin-bottom:24px;
+}
+.section-head h2{font-size:22px;}
+table{width:100%;border-collapse:collapse;background:var(--forest);border-radius:18px;overflow:hidden;}
+th,td{
+    text-align:left;padding:12px 14px;border-bottom:1px solid var(--paper-dark);
+    font-size:13px;vertical-align:top;
+}
+th{
+    font-family:'Quicksand',sans-serif;font-weight:700;font-size:11px;letter-spacing:.3px;
+    color:var(--ink-soft);border-bottom:2px solid var(--paper-dark);background:var(--paper);
+}
+tr:hover td{background:var(--paper);}
+.status-badge{
+    font-family:'Quicksand',sans-serif;font-weight:700;font-size:10px;letter-spacing:.3px;
+    text-transform:uppercase;padding:5px 10px;border-radius:999px;display:inline-block;
+}
+.status-pending{background:#fff0d6;color:#8a6a00;}
+.status-paid{background:#dcf5e8;color:var(--green-ok);}
+.status-shipped{background:#e0eeff;color:#2f5da0;}
+.status-cancelled,.status-failed{background:var(--paper-dark);color:var(--rust-dark);}
+select, input.edit-input{
+    font-family:'Quicksand',sans-serif;font-size:12px;padding:7px 10px;border-radius:10px;
+    border:2px solid var(--paper-dark);background:var(--paper);width:100%;max-width:110px;
+}
+.save-btn{
+    font-family:'Quicksand',sans-serif;font-weight:700;font-size:11px;padding:7px 12px;border-radius:999px;
+    border:2px solid var(--rust);color:var(--rust-dark);background:transparent;cursor:pointer;margin-left:6px;
+}
+.save-btn:hover{background:var(--rust);color:#fff;}
+.delete-btn{
+    font-family:'Quicksand',sans-serif;font-weight:700;font-size:11px;padding:7px 12px;border-radius:999px;
+    border:2px solid #C23B3B;color:#C23B3B;background:transparent;cursor:pointer;margin-left:6px;
+}
+.delete-btn:hover{background:#C23B3B;color:#fff;}
+.export-row{display:flex;gap:12px;}
+.empty-note{color:var(--ink-soft);font-size:13px;padding:20px 0;}
+.items-cell{font-size:12px;color:var(--ink-soft);max-width:220px;}
+
+/* ---- add product form ---- */
+#addProductForm{
+    display:none;
+    background:var(--forest);
+    border:2px dashed var(--paper-dark);
+    border-radius:18px;
+    padding:22px;
+    margin-bottom:24px;
+}
+#addProductForm.show{display:block;}
+.form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    margin-bottom:16px;
+}
+.form-grid .field-wide{grid-column:1 / -1;}
+#addProductForm .field label{margin-bottom:5px;}
+#addProductForm .field input,
+#addProductForm .field textarea{
+    width:100%;padding:10px 12px;border:2px solid var(--paper-dark);border-radius:12px;
+    background:var(--paper);font-family:'Quicksand',sans-serif;font-size:13px;
+}
+#addProductForm .field textarea{resize:vertical;min-height:60px;}
+
+/* ---- add tier form (same pattern as add product form) ---- */
+#addTierForm{
+    display:none;
+    background:var(--forest);
+    border:2px dashed var(--paper-dark);
+    border-radius:18px;
+    padding:22px;
+    margin-bottom:24px;
+}
+#addTierForm.show{display:block;}
+#addTierForm .field label{margin-bottom:5px;}
+#addTierForm .field input{
+    width:100%;padding:10px 12px;border:2px solid var(--paper-dark);border-radius:12px;
+    background:var(--paper);font-family:'Quicksand',sans-serif;font-size:13px;
+}
+</style>
+</head>
+<body>
+
+<header>
+<div>
+<h1>MyShop Admin</h1>
+<div class="sub">Order &amp; Product Management</div>
+</div>
+<button id="logoutBtn" onclick="adminLogout()" style="display:none;">Log Out</button>
+</header>
+
+<div id="loginScreen">
+<h2>Admin Login</h2>
+<p class="sub">Restricted — one account only.</p>
+<form id="loginForm" onsubmit="adminLogin(event)">
+<div class="field">
+<label for="username">Username</label>
+<input type="text" id="username" required autocomplete="username">
+</div>
+<div class="field">
+<label for="password">Password</label>
+<input type="password" id="password" required autocomplete="current-password">
+</div>
+<button type="submit" class="btn">Log In</button>
+<div class="error-msg" id="loginError"></div>
+</form>
+</div>
+
+<div id="dashboard">
+
+<div class="section">
+<div class="section-head">
+<h2>Orders</h2>
+<div class="export-row">
+<a class="btn outline" href="/api/admin/export/orders.csv">Export Orders (CSV)</a>
+</div>
+</div>
+<div id="ordersTableWrap"><p class="empty-note">Loading orders…</p></div>
+</div>
+
+<div class="section">
+<div class="section-head">
+<h2>Products</h2>
+<div class="export-row">
+<button class="btn outline" onclick="toggleAddProductForm()" id="addProductToggleBtn">+ Add Product</button>
+<a class="btn outline" href="/api/admin/export/products.csv">Export Products (CSV)</a>
+</div>
+</div>
+
+<form id="addProductForm" onsubmit="submitNewProduct(event)">
+<div class="form-grid">
+<div class="field">
+<label for="npName">Name</label>
+<input type="text" id="npName" required placeholder="e.g. Wool Scarf">
+</div>
+<div class="field">
+<label for="npPrice">Price (USD)</label>
+<input type="number" id="npPrice" step="0.01" min="0" required placeholder="29.00">
+</div>
+<div class="field">
+<label for="npStock">Stock</label>
+<input type="number" id="npStock" step="1" min="0" value="0">
+</div>
+<div class="field">
+<label for="npCategory">Category</label>
+<input type="text" id="npCategory" list="categoryList" placeholder="e.g. apparel">
+<datalist id="categoryList"></datalist>
+</div>
+<div class="field field-wide">
+<label for="npImageFile">Product Photo</label>
+<input type="file" id="npImageFile" accept="image/png,image/jpeg,image/webp,image/gif" onchange="previewProductImage(this)">
+<img id="npImagePreview" style="display:none;max-width:140px;max-height:140px;object-fit:cover;border-radius:12px;margin-top:10px;border:2px solid var(--paper-dark);">
+</div>
+<div class="field field-wide">
+<label for="npSpec">Spec (short tag)</label>
+<input type="text" id="npSpec" placeholder="e.g. 100% Merino Wool">
+</div>
+<div class="field field-wide">
+<label for="npDescription">Description</label>
+<textarea id="npDescription" placeholder="A short product description."></textarea>
+</div>
+</div>
+<button type="submit" class="btn">Create Product</button>
+<button type="button" class="btn outline" onclick="toggleAddProductForm()">Cancel</button>
+<div class="error-msg" id="addProductError"></div>
+</form>
+
+<div id="productsTableWrap"><p class="empty-note">Loading products…</p></div>
+</div>
+
+<div class="section">
+<div class="section-head">
+<h2>Bulk Discounts</h2>
+<div class="export-row">
+<button class="btn outline" onclick="toggleAddTierForm()" id="addTierToggleBtn">+ Add Tier</button>
+</div>
+</div>
+<p style="font-size:13px;color:var(--ink-soft);margin-bottom:18px;">
+Automatic discounts based on total items in the cart — no code needed. Example: "Buy 10 or more items, get 5% off." If someone qualifies for multiple tiers, only the highest one applies (they don't stack).
+</p>
+
+<form id="addTierForm" onsubmit="submitNewTier(event)">
+<div class="form-grid">
+<div class="field">
+<label for="tierMinQty">Minimum Quantity</label>
+<input type="number" id="tierMinQty" step="1" min="1" required placeholder="e.g. 10">
+</div>
+<div class="field">
+<label for="tierPercent">Discount (%)</label>
+<input type="number" id="tierPercent" step="0.5" min="0.5" max="100" required placeholder="e.g. 5">
+</div>
+</div>
+<button type="submit" class="btn">Create Tier</button>
+<button type="button" class="btn outline" onclick="toggleAddTierForm()">Cancel</button>
+<div class="error-msg" id="addTierError"></div>
+</form>
+
+<div id="tiersTableWrap"><p class="empty-note">Loading tiers…</p></div>
+</div>
+
+</div>
+
+<script>
+function adminLogin(e){
+    e.preventDefault();
+    var errEl = document.getElementById('loginError');
+    errEl.classList.remove('show');
+
+    fetch('/api/admin/login', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value
+        })
+    })
+    .then(function(res){
+        if(!res.ok) return res.json().then(function(err){ throw new Error(err.error || 'Login failed'); });
+        return res.json();
+    })
+    .then(function(){
+        showDashboard();
+    })
+    .catch(function(err){
+        errEl.textContent = err.message;
+        errEl.classList.add('show');
+    });
+}
+
+function adminLogout(){
+    fetch('/api/admin/logout', { method:'POST' }).then(function(){
+        location.reload();
+    });
+}
+
+function showDashboard(){
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    document.getElementById('logoutBtn').style.display = 'inline-block';
+    loadOrders();
+    loadProducts();
+    loadTiers();
+}
+
+function checkSession(){
+    fetch('/api/admin/me')
+        .then(function(res){ return res.json(); })
+        .then(function(data){
+            if(data.loggedIn){ showDashboard(); }
+        });
+}
+
+function loadOrders(){
+    fetch('/api/admin/orders')
+        .then(function(res){ return res.json(); })
+        .then(function(data){ renderOrders(data.orders || []); })
+        .catch(function(){
+            document.getElementById('ordersTableWrap').innerHTML = '<p class="empty-note">Could not load orders.</p>';
+        });
+}
+
+function renderOrders(orders){
+    var wrap = document.getElementById('ordersTableWrap');
+    if(orders.length === 0){
+        wrap.innerHTML = '<p class="empty-note">No orders yet.</p>';
+        return;
+    }
+    var statuses = ['pending','paid','shipped','cancelled','failed'];
+    var html = '<table><thead><tr>' +
+        '<th>Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Placed</th><th></th>' +
+        '</tr></thead><tbody>';
+
+    orders.forEach(function(o){
+        var itemsText = o.items.map(function(i){ return i.product_name+' x'+i.qty; }).join(', ');
+        var optionsHtml = statuses.map(function(s){
+            return '<option value="'+s+'"'+(s===o.status?' selected':'')+'>'+s+'</option>';
+        }).join('');
+
+        html += '<tr>' +
+            '<td class="mono">'+o.tran_id+'</td>' +
+            '<td>'+o.customer_name+'<br><span class="mono" style="font-size:11px;color:var(--ink-soft);">'+o.customer_email+'</span></td>' +
+            '<td class="items-cell">'+itemsText+'</td>' +
+            '<td class="mono">$'+o.total_usd+'</td>' +
+            '<td>' +
+                '<select id="status-'+o.id+'">'+optionsHtml+'</select>' +
+            '</td>' +
+            '<td class="mono" style="font-size:11px;">'+o.created_at+'</td>' +
+            '<td><button class="save-btn" onclick="saveOrderStatus('+o.id+')">Save</button></td>' +
+        '</tr>';
+    });
+
+    html += '</tbody></table>';
+    wrap.innerHTML = html;
+}
+
+function saveOrderStatus(orderId){
+    var select = document.getElementById('status-'+orderId);
+    fetch('/api/admin/orders/'+orderId+'/status', {
+        method:'PUT',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ status: select.value })
+    })
+    .then(function(res){ return res.json(); })
+    .then(function(){ loadOrders(); })
+    .catch(function(err){ alert('Could not update status.'); });
+}
+
+function loadProducts(){
+    fetch('/api/admin/products')
+        .then(function(res){ return res.json(); })
+        .then(function(data){
+            renderProducts(data.products || []);
+            populateCategoryList(data.products || []);
+        })
+        .catch(function(){
+            document.getElementById('productsTableWrap').innerHTML = '<p class="empty-note">Could not load products.</p>';
+        });
+}
+
+function populateCategoryList(products){
+    var categories = Array.from(new Set(products.map(function(p){ return p.category; }).filter(Boolean)));
+    var datalist = document.getElementById('categoryList');
+    datalist.innerHTML = categories.map(function(c){ return '<option value="'+c+'">'; }).join('');
+}
+
+function renderProducts(products){
+    var wrap = document.getElementById('productsTableWrap');
+    if(products.length === 0){
+        wrap.innerHTML = '<p class="empty-note">No products yet — click "+ Add Product" above.</p>';
+        return;
+    }
+    var html = '<table><thead><tr><th>Product</th><th>Category</th><th>Price (USD)</th><th>Stock</th><th></th></tr></thead><tbody>';
+
+    products.forEach(function(p){
+        html += '<tr>' +
+            '<td>'+p.name+'<br><span class="mono" style="font-size:11px;color:var(--ink-soft);">'+p.id+'</span></td>' +
+            '<td style="text-transform:capitalize;">'+(p.category||'—')+'</td>' +
+            '<td><input class="edit-input" type="number" step="0.01" min="0" id="price-'+p.id+'" value="'+p.price_usd+'"></td>' +
+            '<td><input class="edit-input" type="number" step="1" min="0" id="stock-'+p.id+'" value="'+p.stock+'"></td>' +
+            '<td>' +
+                '<button class="save-btn" onclick="saveProduct(\''+p.id+'\')">Save</button>' +
+                '<button class="delete-btn" onclick="deleteProduct(\''+p.id+'\',\''+p.name.replace(/'/g,"\\'")+'\')">Delete</button>' +
+            '</td>' +
+        '</tr>';
+    });
+
+    html += '</tbody></table>';
+    wrap.innerHTML = html;
+}
+
+function toggleAddProductForm(){
+    var form = document.getElementById('addProductForm');
+    form.classList.toggle('show');
+    if(form.classList.contains('show')){
+        document.getElementById('npName').focus();
+    } else {
+        form.reset();
+        document.getElementById('addProductError').classList.remove('show');
+        var preview = document.getElementById('npImagePreview');
+        preview.style.display = 'none';
+        preview.src = '';
+    }
+}
+
+function previewProductImage(input){
+    var preview = document.getElementById('npImagePreview');
+    if(input.files && input.files[0]){
+        preview.src = URL.createObjectURL(input.files[0]);
+        preview.style.display = 'block';
+    } else {
+        preview.style.display = 'none';
+    }
+}
+
+function submitNewProduct(e){
+    e.preventDefault();
+    var errEl = document.getElementById('addProductError');
+    errEl.classList.remove('show');
+    var submitBtn = e.target.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+
+    var fileInput = document.getElementById('npImageFile');
+    var file = fileInput.files && fileInput.files[0];
+
+    function createProductWithImage(imageUrl){
+        var payload = {
+            name: document.getElementById('npName').value,
+            price_usd: document.getElementById('npPrice').value,
+            stock: document.getElementById('npStock').value,
+            category: document.getElementById('npCategory').value,
+            image_url: imageUrl || '',
+            spec: document.getElementById('npSpec').value,
+            description: document.getElementById('npDescription').value
+        };
+
+        return fetch('/api/admin/products', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify(payload)
+        }).then(function(res){
+            if(!res.ok) return res.json().then(function(err){ throw new Error(err.error || 'Could not create product.'); });
+            return res.json();
+        });
+    }
+
+    var uploadStep = file
+        ? (function(){
+            var formData = new FormData();
+            formData.append('image', file);
+            return fetch('/api/admin/upload', { method:'POST', body: formData })
+                .then(function(res){
+                    if(!res.ok) return res.json().then(function(err){ throw new Error(err.error || 'Image upload failed.'); });
+                    return res.json();
+                })
+                .then(function(data){ return data.url; });
+        })()
+        : Promise.resolve('');
+
+    uploadStep
+        .then(function(imageUrl){ return createProductWithImage(imageUrl); })
+        .then(function(){
+            toggleAddProductForm();
+            loadProducts();
+        })
+        .catch(function(err){
+            errEl.textContent = err.message;
+            errEl.classList.add('show');
+        })
+        .finally(function(){
+            submitBtn.disabled = false;
+        });
+}
+
+function deleteProduct(id, name){
+    if(!confirm('Delete "'+name+'"? This can\'t be undone. (Past orders that included it are unaffected.)')){
+        return;
+    }
+    fetch('/api/admin/products/'+id, { method:'DELETE' })
+        .then(function(res){
+            if(!res.ok) return res.json().then(function(err){ throw new Error(err.error || 'Could not delete product.'); });
+            return res.json();
+        })
+        .then(function(){ loadProducts(); })
+        .catch(function(err){ alert(err.message); });
+}
+
+function saveProduct(productId){
+    var price = document.getElementById('price-'+productId).value;
+    var stock = document.getElementById('stock-'+productId).value;
+
+    fetch('/api/admin/products/'+productId, {
+        method:'PUT',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ price_usd: price, stock: stock })
+    })
+    .then(function(res){ return res.json(); })
+    .then(function(){ loadProducts(); })
+    .catch(function(){ alert('Could not update product.'); });
+}
+
+/* ---------- bulk quantity discount tiers ---------- */
+function toggleAddTierForm(){
+    var form = document.getElementById('addTierForm');
+    form.classList.toggle('show');
+    if(form.classList.contains('show')){
+        document.getElementById('tierMinQty').focus();
+    } else {
+        form.reset();
+        document.getElementById('addTierError').classList.remove('show');
+    }
+}
+
+function loadTiers(){
+    fetch('/api/admin/quantity-discounts')
+        .then(function(res){ return res.json(); })
+        .then(function(data){ renderTiers(data.tiers || []); })
+        .catch(function(){
+            document.getElementById('tiersTableWrap').innerHTML = '<p class="empty-note">Could not load discount tiers.</p>';
+        });
+}
+
+function renderTiers(tiers){
+    var wrap = document.getElementById('tiersTableWrap');
+    if(tiers.length === 0){
+        wrap.innerHTML = '<p class="empty-note">No bulk discount tiers yet — click "+ Add Tier" above.</p>';
+        return;
+    }
+    var html = '<table><thead><tr><th>Rule</th><th>Active</th><th></th></tr></thead><tbody>';
+    tiers.forEach(function(t){
+        html += '<tr>' +
+            '<td>Buy <strong>'+t.min_qty+'+</strong> items &rarr; <strong>'+t.discount_percent+'% off</strong></td>' +
+            '<td>' +
+                '<select id="tierActive-'+t.id+'" onchange="updateTierActive('+t.id+',this.value)">' +
+                    '<option value="1"'+(t.active? ' selected':'')+'>Active</option>' +
+                    '<option value="0"'+(!t.active? ' selected':'')+'>Paused</option>' +
+                '</select>' +
+            '</td>' +
+            '<td><button class="delete-btn" onclick="deleteTier('+t.id+')">Delete</button></td>' +
+        '</tr>';
+    });
+    html += '</tbody></table>';
+    wrap.innerHTML = html;
+}
+
+function submitNewTier(e){
+    e.preventDefault();
+    var errEl = document.getElementById('addTierError');
+    errEl.classList.remove('show');
+
+    fetch('/api/admin/quantity-discounts', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+            min_qty: document.getElementById('tierMinQty').value,
+            discount_percent: document.getElementById('tierPercent').value
+        })
+    })
+    .then(function(res){
+        if(!res.ok) return res.json().then(function(err){ throw new Error(err.error || 'Could not create tier.'); });
+        return res.json();
+    })
+    .then(function(){
+        toggleAddTierForm();
+        loadTiers();
+    })
+    .catch(function(err){
+        errEl.textContent = err.message;
+        errEl.classList.add('show');
+    });
+}
+
+function updateTierActive(id, activeValue){
+    fetch('/api/admin/quantity-discounts/'+id, {
+        method:'PUT',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ active: activeValue === '1' })
+    })
+    .then(function(res){ return res.json(); })
+    .then(function(){ loadTiers(); })
+    .catch(function(){ alert('Could not update tier.'); });
+}
+
+function deleteTier(id){
+    if(!confirm('Delete this discount tier?')) return;
+    fetch('/api/admin/quantity-discounts/'+id, { method:'DELETE' })
+        .then(function(res){ return res.json(); })
+        .then(function(){ loadTiers(); })
+        .catch(function(){ alert('Could not delete tier.'); });
+}
+
+checkSession();
+</script>
+
+</body>
+</html>
